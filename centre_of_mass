@@ -1,0 +1,91 @@
+#  centres of masses
+
+from scipy import ndimage
+import numpy as np
+import nibabel as nib
+import pandas as pd  # Dodaj bibliotekę pandas
+
+def centres_of_masses(file):
+    # Wczytaj plik NIfTI
+    img = nib.load(file)
+    masks = img.get_fdata()
+
+    # Lista do przechowywania środków ciężkości
+    centers_of_masses = []
+
+    # Iteracja przez wszystkie warstwy (slice) w masce
+    for i in range(masks.shape[2]):
+        # Pobierz pojedynczą warstwę (2D maskę)
+        slice_mask = masks[:, :, i]
+
+        # Podziel maskę na dwie części względem osi X
+        mid_x = slice_mask.shape[0] // 2  # Poprawka: użyj wymiaru 0 (oś X)
+        left_half = slice_mask[:mid_x, :]  # Lewa połowa
+        right_half = slice_mask[mid_x:, :]  # Prawa połowa
+
+        # Oblicz środek ciężkości dla lewej połowy
+        left_center_of_mass = ndimage.center_of_mass(left_half)
+        # Przesuń współrzędne X środka ciężkości dla lewej połowy
+        if left_center_of_mass[0] is not None:
+            left_center_of_mass = (left_center_of_mass[0], left_center_of_mass[1])  # wartości x i y środka masy    
+
+        # Oblicz środek ciężkości dla prawej połowy
+        right_center_of_mass = ndimage.center_of_mass(right_half)
+        # Przesuń współrzędne X środka ciężkości dla prawej połowy
+        if right_center_of_mass[0] is not None:
+            right_center_of_mass = (right_center_of_mass[0] + mid_x, right_center_of_mass[1])
+
+        # Dodaj środki ciężkości do listy
+        centers_of_masses.append({
+            "Slice": i + 1,
+            "Left_X": left_center_of_mass[0] if left_center_of_mass[0] is not None else None,
+            "Left_Y": left_center_of_mass[1] if left_center_of_mass[1] is not None else None,
+            "Right_X": right_center_of_mass[0] if right_center_of_mass[0] is not None else None,
+            "Right_Y": right_center_of_mass[1] if right_center_of_mass[1] is not None else None
+        })
+
+    # Konwersja wyników do DataFrame
+    df = pd.DataFrame(centers_of_masses)
+
+    # Zapisz tabelę do pliku CSV
+    output_csv = "centers_of_masses.csv"
+    df.to_csv(output_csv, index=False)
+    print(f"\nCenters of masses saved to '{output_csv}'.")
+
+    return df
+
+# Przykład użycia
+file_path = 'eye_mask.nii'  # Podaj ścieżkę do pliku NIfTI
+centers_df = centres_of_masses(file_path)
+
+# Wyświetl tabelę
+print(centers_df)
+
+def calculate_global_center_of_mass(csv_file):
+    # Wczytaj dane z pliku CSV
+    df = pd.read_csv(csv_file)
+
+    # Oblicz średnie współrzędne dla lewego oka
+    left_x_mean = df["Left_X"].mean()
+    left_y_mean = df["Left_Y"].mean()
+
+    # Oblicz średnie współrzędne dla prawego oka
+    right_x_mean = df["Right_X"].mean()
+    right_y_mean = df["Right_Y"].mean()
+
+    # Wyświetl wyniki
+    print("Global Center of Mass for Each Eye:")
+    print(f"Left Eye:  X = {left_x_mean:.2f}, Y = {left_y_mean:.2f}")
+    print(f"Right Eye: X = {right_x_mean:.2f}, Y = {right_y_mean:.2f}")
+
+    # Zwróć wyniki jako słownik
+    return {
+        "Left Eye": (left_x_mean, left_y_mean),
+        "Right Eye": (right_x_mean, right_y_mean)
+    }
+
+# Przykład użycia
+csv_file = "centers_of_masses.csv"  # Ścieżka do pliku CSV
+global_centers = calculate_global_center_of_mass(csv_file)
+
+print(global_centers)
