@@ -2,6 +2,10 @@
 from ipywidgets import interact, IntSlider, FloatSlider
 from matplotlib.colors import LinearSegmentedColormap
 
+# ---------------------------------------------
+# -----------------mri plot--------------------
+# ---------------------------------------------
+
 
 def plot_mri(image_data, projection: str, mask_data=None, *, initial_channel=0, initial_time=0, mask_color='Wistia'):
     '''
@@ -72,3 +76,17 @@ def plot_mri(image_data, projection: str, mask_data=None, *, initial_channel=0, 
         channel=IntSlider(min=0, max=channel_max -1, step=1, value=initial_channel, description=channel_name),
         alpha=FloatSlider(min=0, max=1, step=0.01, value=0.2, description='Transparency')
         )
+
+# ---------------------------------------------
+# ---------------image filter------------------
+# ---------------------------------------------
+
+def image_filter(image_data, mask_data):
+    # local_variables
+    mask_data_copy = mask_data.copy()
+
+    # creating matrix with values 
+    mask_data_copy[mask_data_copy != 0] = 1
+    new_image = image_data * mask_data_copy
+    return new_image
+
