@@ -1,39 +1,47 @@
-import ants
+import nibabel as nib
 import numpy as np
 import pandas as pd
+from dipy.align.imaffine import (MutualInformationMetric, AffineRegistration)
+from dipy.align.transforms import RigidTransform3D
+from dipy.viz import regtools
 
-# Load fMRI image
-fmri_img = ants.image_read("fmri.nii.gz")
+# Load fMRI data (assumes 4D NIfTI file)
+fmri_img = nib.load("fmri.nii.gz")
+fmri_data = fmri_img.get_fdata()
 
-# Extract the first time point (volume) as the reference image
-reference_img = fmri_img[:,:,:,0]  # First 3D volume
+# Extract the first time point as reference
+reference_img_data = fmri_data[:,:,:,0]  # First time point (volume)
+
+# Set up the registration
+metric = MutualInformationMetric(nbins=32)  # Mutual information metric
+reg = AffineRegistration()  # Register images
+rigid_transform = RigidTransform3D()  # Rigid transformation (6 DOF)
 
 # Perform rigid-body registration
-motion_corrected = ants.registration(fixed=reference_img, moving=fmri_img, type_of_transform="Rigid")
+params0 = None  # Initial parameters (identity transformation)
+transform = reg.optimize(static=reference_img_data, moving=fmri_data, transform=rigid_transform, params0=params0)
 
-# Save the corrected fMRI image
-ants.image_write(motion_corrected['warpedmovout'], "fmri_corrected.nii.gz")
-
-# Extract motion parameters (affine transformation matrix)
-affine_matrix = motion_corrected['fwdtransforms'][0]  # Forward transformation file
-
-# Load the affine transformation matrix
-affine_values = ants.read_transform(affine_matrix).tolist()
-
-# Convert to readable format (translation + rotation)
+# Extract motion parameters (translation and rotation)
 motion_params = {
-    "tx": affine_values[0][-1],  # Translation X
-    "ty": affine_values[1][-1],  # Translation Y
-    "tz": affine_values[2][-1],  # Translation Z
-    "rx": affine_values[0][:3],  # Rotation row 1
-    "ry": affine_values[1][:3],  # Rotation row 2
-    "rz": affine_values[2][:3]   # Rotation row 3
+    "tx": transform.params[0],  # Translation in X
+    "ty": transform.params[1],  # Translation in Y
+    "tz": transform.params[2],  # Translation in Z
+    "rx": transform.params[3],  # Rotation around X-axis
+    "ry": transform.params[4],  # Rotation around Y-axis
+    "rz": transform.params[5]   # Rotation around Z-axis
 }
 
-# Convert to DataFrame for easy export
+# Convert motion parameters to a DataFrame
 df = pd.DataFrame([motion_params])
 
-# Save motion parameters as CSV
+# Save motion parameters to CSV
 df.to_csv("motion_parameters.csv", index=False)
+
+# Apply the transformation to all volumes
+corrected_data = transform.transform(fmri_data)
+
+# Save the corrected fMRI image
+corrected_img = nib.Nifti1Image(corrected_data, fmri_img.affine)
+nib.save(corrected_img, "fmri_corrected.nii.gz")
 
 print("Motion correction done. Motion parameters saved to motion_parameters.csv")
