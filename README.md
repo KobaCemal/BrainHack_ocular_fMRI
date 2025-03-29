@@ -32,10 +32,15 @@ Quantifying eye movements:
 
 Example algortihms: 
 Double motion correction on optic nerves comply with eye movement tasks: https://doi.org/10.1002/hbm.10070 (motion correction and smoothing)
+
 Variance of the time series from eye orbits match with eye movement tasks: https://doi.org/10.1002/mrm.10345 (no preprocessing?)
+
 Semi-automated continous max-flow alghoritm to isolate eye orbits and follow the movements (this is the closest algorithm to our goal):  10.1186/s12868-016-0282-7 (only motion correction and smoothing)
+
 Independent component analysis from eye regions relate with eye-tracker parameters:  https://doi.org/10.1101/2024.10.19.619187 (only motion correction is applied)
+
 Data from the "large mask" reveals the gaze direction:  https://doi.org/10.1093/cercor/bhz157 (this model needs calibration and training)
+
 DL-based model that was trained on datasets containing different eye movement tasks: https://doi.org/10.1038/s41593-021-00947-w (motion correction/ field bias correction)
 
 
