@@ -84,9 +84,16 @@ def plot_mri(image_data, projection: str, mask_data=None, *, initial_channel=0, 
 def image_filter(image_data, mask_data):
     # local_variables
     mask_data_copy = mask_data.copy()
-
-    # creating matrix with values 
+    mask_dim = len(mask_data_copy.shape)
+    
+    # creating binary matrix 
     mask_data_copy[mask_data_copy != 0] = 1
-    new_image = image_data * mask_data_copy
+    
+    # solving multiple dimension 
+    if mask_dim == 4:
+        new_image = image_data * mask_data_copy
+    elif mask_dim == 3:
+        for i in range(image_data.shape[3]):
+            new_image = image_data[:, :, :, i] * mask_data_copy
     return new_image
 
