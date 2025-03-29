@@ -12,6 +12,8 @@ def plot_mri(image_data, projection: str, mask_data=None, *, initial_channel=0, 
     mask_color: takes cmap as argument 
     '''
 
+    # local variables 
+    mask_dim = len(mask_data.shape)
 
     # adjusting output
     match projection:
@@ -33,7 +35,10 @@ def plot_mri(image_data, projection: str, mask_data=None, *, initial_channel=0, 
         print(f'Image shape: {image_data.shape}')
         print(f'Mask shape:  {mask_data.shape}')
 
+    
+    
     # plot part 
+    # TODO we need to check dimension so we can display also anatomical data    
     def explore_img(Time, channel, alpha):
         # fig settings
         plt.figure(figsize=(12, 8))
@@ -41,16 +46,22 @@ def plot_mri(image_data, projection: str, mask_data=None, *, initial_channel=0, 
         match projection:
             case 'XY':
                 plt.imshow(image_data[:, :, channel, Time], cmap='gray')    
-                if mask_data is not None:        
-                    plt.imshow(mask_data[:, :, channel, Time], cmap=mask_color, alpha=alpha)       
+                if mask_data is not None and mask_dim == 4:
+                    plt.imshow(mask_data[:, :, channel, Time], cmap=mask_color, alpha=alpha) 
+                elif mask_data is not None and mask_dim == 3:
+                    plt.imshow(mask_data[:, :, channel], cmap=mask_color, alpha=alpha) 
             case 'XZ':
                 plt.imshow(image_data[:, channel, :, Time], cmap='gray')
-                if mask_data is not None:        
+                if mask_data is not None and mask_dim == 4:       
                     plt.imshow(mask_data[:, channel, :, Time], cmap=mask_color, alpha=alpha)  
+                elif mask_data is not None and mask_dim == 3:
+                    plt.imshow(mask_data[:, channel, :], cmap=mask_color, alpha=alpha) 
             case 'YZ':
                 plt.imshow(image_data[channel, :, :, Time], cmap='gray')
-                if mask_data is not None:        
+                if mask_data is not None and mask_dim == 4:       
                     plt.imshow(mask_data[channel, :, :, Time], cmap=mask_color, alpha=alpha)  
+                elif mask_data is not None and mask_dim == 3:
+                    plt.imshow(mask_data[channel, :, :], cmap=mask_color, alpha=alpha) 
         
         plt.axis('off')
         # plt.show()
@@ -61,4 +72,3 @@ def plot_mri(image_data, projection: str, mask_data=None, *, initial_channel=0, 
         channel=IntSlider(min=0, max=channel_max -1, step=1, value=initial_channel, description=channel_name),
         alpha=FloatSlider(min=0, max=1, step=0.01, value=0.2, description='Transparency')
         )
-
