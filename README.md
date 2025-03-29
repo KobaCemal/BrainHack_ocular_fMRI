@@ -2,13 +2,13 @@
 Repository for scripts created during BrainHack2025 for ocular fMRI project
 
 
-Data types: 
+*Data types:* 
 
 1- Raw data 
 2- Denoised data
 3- Smoothed data
 
-Masks
+*Masks*
 
 1- Whole-brain (no mask)
 2- Big mask
@@ -17,20 +17,20 @@ Masks
 5- Optic nerve mask
 
 
-Isolating Strategies: 
-1- Miko’s unit
+*Isolating Strategies:*
+1- Miko’s U-net
 2- “Defacer” search
 3- Start from the other end of the image 
 
 
-Quantifying eye movements:
+*Quantifying eye movements:*
 1- MVPA
 2- Center of gravity 
 3- Double motion correction on optic nerves
 4- Slice-timing trick
 
 
-Example algortihms: 
+*Example algortihms: *
 Double motion correction on optic nerves comply with eye movement tasks: https://doi.org/10.1002/hbm.10070 (motion correction and smoothing)
 
 Variance of the time series from eye orbits match with eye movement tasks: https://doi.org/10.1002/mrm.10345 (no preprocessing?)
