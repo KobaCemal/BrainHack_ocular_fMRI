@@ -44,3 +44,6 @@ Data from the "large mask" reveals the gaze direction:  https://doi.org/10.1093/
 DL-based model that was trained on datasets containing different eye movement tasks: https://doi.org/10.1038/s41593-021-00947-w (motion correction/ field bias correction)
 
 
+
+Paper describing the methods: https://doi.org/10.1016/j.neuron.2015.02.027
+
