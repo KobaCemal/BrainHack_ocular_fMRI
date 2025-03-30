@@ -31,6 +31,7 @@ for eye in eyes:
         metric = MutualInformationMetric(nbins=32)  # Mutual information metric
         reg = AffineRegistration()  # Register images
         rigid_transform = RigidTransform3D()  # Rigid transformation (6 DOF)
+        params0 = np.array([0, 0, 0, 0, 0, 0]) # Starting point of eye analysis
 
         for t in range(n_volumes):
                 moving_img_data = fmri_data[:, :, :, t]
