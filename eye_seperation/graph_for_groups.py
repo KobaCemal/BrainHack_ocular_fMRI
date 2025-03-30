@@ -1,3 +1,9 @@
+# --------------------------------------------
+# Graph for correlation, eclidean distance
+# and mean rotation for every patient
+# --------------------------------------------
+
+# Libreris
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
