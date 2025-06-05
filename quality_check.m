@@ -268,4 +268,14 @@ for i=1:size(qa_table,1)
     for f = 1:length(field_names)
         stroke_structure(i).(field_names{f}) = session_info.(field_names{f});
     end
+    
+    whos('stroke_structure').bytes/1000000
+
+    if mod(i, 10) == 0
+        filename = sprintf('stroke_structure_iter_%d.mat', i);
+        save(filename, 'stroke_structure', '-v7.3');
+        fprintf('Saved iteration %d to %s\n', i, filename);
+    end
+
+
 end
