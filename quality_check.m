@@ -57,7 +57,10 @@ gradient_func=GradientMaps('kernel','na','approach','dm','alignment','pa','n_com
 
 
 % Initiate the structure
-stroke_structure(size(qa_table,1),1)=struct();
+load('stroke_structure_iter_380.mat') %stroke_structure(size(qa_table,1),1)=struct();
+
+qa_table=readtable('/media/koba/MULTIBOOT/net/ascratch/people/plgkoba/stroke_BIDS/stroke_dataset_quality_control.csv');
+
 for i=1:size(qa_table,1)
     
     % Add the first info to the structure
@@ -160,11 +163,10 @@ for i=1:size(qa_table,1)
             parcellation_in_brainmask=parcellation_mask_whole;
             gs=mean(func_data(parcellation_in_brainmask,:));
         elseif contains(SUBID,'PAT')
-
-            if basic_info.lesion_side == 0 % 0 is for left
+            if logical(basic_info.lesion_side{1}) == 0 % 0 is for left
                 parcellation_in_brainmask=parcellation_mask_right;
                 gs=mean(func_data(parcellation_in_brainmask,:));
-            elseif basic_info.lesion_side == 1
+            elseif logical(basic_info.lesion_side{1}) == 1
                 parcellation_in_brainmask=parcellation_mask_left;
                 gs=mean(func_data(parcellation_in_brainmask,:));
             end
@@ -268,14 +270,60 @@ for i=1:size(qa_table,1)
     for f = 1:length(field_names)
         stroke_structure(i).(field_names{f}) = session_info.(field_names{f});
     end
-    
+
     whos('stroke_structure').bytes/1000000
 
     if mod(i, 10) == 0
+        % Create filename for this iteration
         filename = sprintf('stroke_structure_iter_%d.mat', i);
+
+        % Delete previous file if it exists
+        if i > 10
+            prev_filename = sprintf('stroke_structure_iter_%d.mat', i-10);
+            if exist(prev_filename, 'file')
+                delete(prev_filename);
+            end
+        end
+        % Save current structure
         save(filename, 'stroke_structure', '-v7.3');
         fprintf('Saved iteration %d to %s\n', i, filename);
     end
-
-
 end
+
+
+% Get the reference topography
+
+all_matrices_corrected = {stroke_structure(1:56).gradient_corrmat_corrected_mean};
+matrix_3d_corrected = cat(3, all_matrices_corrected{:});
+mean_matrix_corrected = mean(matrix_3d_corrected, 3);
+
+all_matrices = {stroke_structure(1:56).gradient_corrmat_mean};
+matrix_3d = cat(3, all_matrices{:});
+mean_matrix = mean(matrix_3d, 3);
+
+
+for j=1:size(qa_table,1)
+    run_array=str2double(strsplit(stroke_structure(j).Run{1},'-'));
+    ED_func_runs=zeros(max(parcellation),size(run_array,2));
+    ED_func_runs_corrected=zeros(max(parcellation),size(run_array,2));
+    for i=1:max(parcellation)
+        for k=1:size(run_array,2)
+            ED_func_runs(i,k)=norm(stroke_structure(j).gradient_corrmat(i,1:3,k)-mean_matrix(i,1:3));
+            ED_func_runs_corrected(i,k)=norm(stroke_structure(j).gradient_corrmat_corrected(i,1:3,k)-mean_matrix_corrected(i,1:3));
+        end
+    end
+    stroke_structure(j).ed_func_runs=ED_func_runs;
+    stroke_structure(j).ed_func_runs_corrected=ED_func_runs_corrected;
+
+    ED_func_mean=zeros(max(parcellation),1);
+    ED_func_mean_corrected=zeros(max(parcellation),1);
+    for i=1:max(parcellation)
+        ED_func_mean(i,1)=norm(stroke_structure(j).gradient_corrmat_mean(i,1:3)-mean_matrix(i,1:3));
+        ED_func_mean_corrected(i,1)=norm(stroke_structure(j).gradient_corrmat_corrected_mean(i,1:3)-mean_matrix_corrected(i,1:3));
+    end
+    stroke_structure(j).ed_func_mean=ED_func_mean;
+    stroke_structure(j).ed_func_mean_corrected=ED_func_mean_corrected;
+end
+
+
+
