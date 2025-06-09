@@ -325,5 +325,25 @@ for j=1:size(qa_table,1)
     stroke_structure(j).ed_func_mean_corrected=ED_func_mean_corrected;
 end
 
+path_to_lesions = '/media/koba/MULTIBOOT/net/ascratch/people/plgkoba/stroke_BIDS_first_sessions/derivatives/NiftiLesions';
 
+for i = 1:size(stroke_structure,1)
+    subid = stroke_structure(i).ID;
 
+    % List all files in the lesion directory (excluding subfolders)
+    files = dir(fullfile(path_to_lesions, '*'));
+    files = files(~[files.isdir]);  % Keep only files, exclude folders
+
+    % Check if any file name contains the subject ID
+    match = contains({files.name}, subid);
+
+    if any(match)
+        % Get the first matched file (adjust if there could be multiple)
+        matched_file = files(find(match,1)).name;
+        stroke_structure(i).mask_availabilty = 1;
+        stroke_structure(i).path_to_mask = fullfile(path_to_lesions, matched_file);
+    else
+        stroke_structure(i).mask_availabilty = 0;
+        stroke_structure(i).path_to_mask = '';
+    end
+end
