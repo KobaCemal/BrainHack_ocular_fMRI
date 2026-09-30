@@ -16,7 +16,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
 
-OUT = '/home/cemal/Desktop/Opus/vph'
+OUT = '/home/cemal/Desktop/Opus/vph/vph_updated'
 
 # ── 1. LOAD DATA ──────────────────────────────────────────────
 with open('/home/cemal/Desktop/Opus/stroke_csv_in_progress.pkl', 'rb') as f:

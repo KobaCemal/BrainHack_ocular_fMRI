@@ -24,7 +24,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
 
-OUT = '/home/cemal/Desktop/Opus/vph'
+OUT = '/home/cemal/Desktop/Opus/vph/vph_updated'
 
 # ── 1. LOAD DATA ──────────────────────────────────────────────
 with open('/home/cemal/Desktop/Opus/stroke_csv_in_progress.pkl', 'rb') as f:
@@ -362,6 +362,17 @@ if len(sig_rows) > 0:
         sub = sub.dropna(subset=['tertile'])
         n_by_tert = subj_tert.value_counts()
 
+        # Individual spaghetti lines — color fixed at acute tertile
+        for sid, tert in subj_tert.items():
+            color  = TERT_COLORS[tert]
+            sdata  = sub[sub['ID'] == sid].sort_values('days')
+            xs_i   = sdata['days'].values.astype(float)
+            ys_i   = sdata[oc].values.astype(float)
+            valid  = np.isfinite(xs_i) & np.isfinite(ys_i)
+            if valid.sum() >= 2:
+                ax.plot(xs_i[valid], ys_i[valid],
+                        color=color, alpha=0.20, linewidth=0.7, zorder=1)
+
         # Group mean ± SEM
         for tert in TERT_ORDER:
             color = TERT_COLORS[tert]
@@ -469,6 +480,17 @@ if len(sig_rows_bc) > 0:
         sub['tertile'] = sub['ID'].map(subj_tert)
         sub = sub.dropna(subset=['tertile'])
         n_by_tert = subj_tert.value_counts()
+
+        # Individual spaghetti lines — color fixed at acute tertile
+        for sid, tert in subj_tert.items():
+            color  = TERT_COLORS[tert]
+            sdata  = sub[sub['ID'] == sid].sort_values('days')
+            xs_i   = sdata['days'].values.astype(float)
+            ys_i   = sdata[oc].values.astype(float)
+            valid  = np.isfinite(xs_i) & np.isfinite(ys_i)
+            if valid.sum() >= 2:
+                ax.plot(xs_i[valid], ys_i[valid],
+                        color=color, alpha=0.20, linewidth=0.7, zorder=1)
 
         for tert in TERT_ORDER:
             color = TERT_COLORS[tert]

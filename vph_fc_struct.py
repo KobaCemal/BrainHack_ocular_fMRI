@@ -23,7 +23,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 warnings.filterwarnings('ignore')
 
-OUT      = '/home/cemal/Desktop/Opus/vph'
+OUT = '/home/cemal/Desktop/Opus/vph/vph_updated'
 MAP_PATH = '/home/cemal/Desktop/Opus/R4_analyses/schaefer400_network_mapping.csv'
 CAP_DAYS = 450
 
